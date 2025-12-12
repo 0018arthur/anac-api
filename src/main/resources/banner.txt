@@ -1,0 +1,26 @@
+                                                                                                          
+                                                                                                          
+               AAA               NNNNNNNN        NNNNNNNN               AAA                  CCCCCCCCCCCCC
+              A:::A              N:::::::N       N::::::N              A:::A              CCC::::::::::::C
+             A:::::A             N::::::::N      N::::::N             A:::::A           CC:::::::::::::::C
+            A:::::::A            N:::::::::N     N::::::N            A:::::::A         C:::::CCCCCCCC::::C
+           A:::::::::A           N::::::::::N    N::::::N           A:::::::::A       C:::::C       CCCCCC
+          A:::::A:::::A          N:::::::::::N   N::::::N          A:::::A:::::A     C:::::C              
+         A:::::A A:::::A         N:::::::N::::N  N::::::N         A:::::A A:::::A    C:::::C              
+        A:::::A   A:::::A        N::::::N N::::N N::::::N        A:::::A   A:::::A   C:::::C              
+       A:::::A     A:::::A       N::::::N  N::::N:::::::N       A:::::A     A:::::A  C:::::C              
+      A:::::AAAAAAAAA:::::A      N::::::N   N:::::::::::N      A:::::AAAAAAAAA:::::A C:::::C              
+     A:::::::::::::::::::::A     N::::::N    N::::::::::N     A:::::::::::::::::::::AC:::::C              
+    A:::::AAAAAAAAAAAAA:::::A    N::::::N     N:::::::::N    A:::::AAAAAAAAAAAAA:::::AC:::::C       CCCCCC
+   A:::::A             A:::::A   N::::::N      N::::::::N   A:::::A             A:::::AC:::::CCCCCCCC::::C
+  A:::::A               A:::::A  N::::::N       N:::::::N  A:::::A               A:::::ACC:::::::::::::::C
+ A:::::A                 A:::::A N::::::N        N::::::N A:::::A                 A:::::A CCC::::::::::::C
+AAAAAAA                   AAAAAAANNNNNNNN         NNNNNNNAAAAAAA                   AAAAAAA   CCCCCCCCCCCCC
+                                                                                                          
+                                                                                                          
+                                                                                                          
+Spring Boot Version: ${spring-boot.version}
+Java Version:       ${java.version}                                                                                                           
+                                                                                                          
+                                                                                                          
+                                                                                                          

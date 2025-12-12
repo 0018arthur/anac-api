@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: anac-api
+    env: java
+    plan: free
+    buildCommand: "./mvnw clean install -DskipTests"
+    startCommand: "java -jar target/*.jar"
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+      - key: DB_HOST
+        fromDatabase:
+          name: anac-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: anac-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: anac-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: anac-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: anac-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SPRING_MAIL_USERNAME
+        sync: false
+      - key: SPRING_MAIL_PASSWORD
+        sync: false
+      - key: AI_HUGGINGFACE_API_TOKEN
+        sync: false
+      - key: APP_ALERT_EMAIL
+        sync: false
+
+databases:
+  - name: anac-db
+    plan: free
+    databaseName: anac_db
+    user: anac_user

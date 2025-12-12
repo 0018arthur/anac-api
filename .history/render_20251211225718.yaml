@@ -1,0 +1,53 @@
+services:
+  # Service PostgreSQL (géré par Render)
+  - type: pspg
+    name: anac-postgres-db
+    plan: free
+    databaseName: anac_db
+    databaseUser: anac_user
+    ipAllowList: []  # Permet l'accès depuis tous les services Render
+
+  # Service Web (API Spring Boot)
+  - type: web
+    name: anac-api
+    env: java
+    plan: free
+    region: frankfurt  # Choisissez la région la plus proche (frankfurt, oregon, singapore, etc.)
+    buildCommand: "./mvnw clean install -DskipTests"
+    startCommand: "java -jar target/*.jar"
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Variables PostgreSQL - Récupérées automatiquement depuis le service PostgreSQL
+      - key: DB_HOST
+        fromDatabase:
+          name: anac-postgres-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: anac-postgres-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: anac-postgres-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: anac-postgres-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: anac-postgres-db
+          property: password
+      - key: PORT
+        value: "8080"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SPRING_MAIL_USERNAME
+        sync: false  # À définir manuellement dans le dashboard Render
+      - key: SPRING_MAIL_PASSWORD
+        sync: false  # À définir manuellement dans le dashboard Render (secret)
+      - key: HUGGINGFACE_API_TOKEN
+        sync: false  # À définir manuellement dans le dashboard Render (secret)
+      - key: APP_ALERT_EMAIL
+        sync: false  # Optionnel

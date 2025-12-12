@@ -1,0 +1,50 @@
+services:
+  # Service MySQL
+  - type: psmdb
+    name: anac-mysql-db
+    plan: free
+    databaseName: anac_db
+    databaseUser: anac_user
+    ipAllowList: []  # Permet l'accès depuis tous les services Render
+
+  # Service Web (API Spring Boot)
+  - type: web
+    name: anac-api
+    env: java
+    plan: free
+    region: frankfurt  # Choisissez la région la plus proche
+    buildCommand: "./mvnw clean install -DskipTests"
+    startCommand: "java -jar target/*.jar"
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        fromDatabase:
+          name: anac-mysql-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: anac-mysql-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: anac-mysql-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: anac-mysql-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: anac-mysql-db
+          property: password
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SPRING_MAIL_USERNAME
+        sync: false
+      - key: SPRING_MAIL_PASSWORD
+        sync: false
+      - key: HUGGINGFACE_API_TOKEN
+        sync: false
