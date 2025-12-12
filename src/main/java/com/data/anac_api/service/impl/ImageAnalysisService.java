@@ -35,6 +35,14 @@ public class ImageAnalysisService {
     }
 
     public Mono<Map<String, Object>> analyzeImageForIncident(MultipartFile imageFile) {
+        // Vérifier si Hugging Face est configuré
+        if (HUGGING_FACE_API_URL == null || HUGGING_FACE_API_URL.isEmpty() ||
+            API_TOKEN == null || API_TOKEN.isEmpty() ||
+            MODEL_NAME == null || MODEL_NAME.isEmpty()) {
+            log.warn("Hugging Face API non configurée. L'analyse d'image sera ignorée.");
+            return Mono.just(Map.of("error", "Hugging Face API non configurée"));
+        }
+
         try {
             byte[] imageBytes = imageFile.getBytes();
 
