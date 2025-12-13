@@ -216,7 +216,21 @@ public class IncidentController {
     @Operation(summary = "Mettre à jour le statut d'un incident")
     public ResponseEntity<IncidentResponseDTO> updateIncidentStatus(
             @PathVariable Long id,
-            @RequestParam StatutIncident status) {
+            @RequestBody Map<String, String> requestBody) {
+        
+        // Extraire le statut depuis le body JSON
+        String statusStr = requestBody.get("statut");
+        if (statusStr == null || statusStr.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le paramètre 'statut' est obligatoire");
+        }
+        
+        StatutIncident status;
+        try {
+            status = StatutIncident.valueOf(statusStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Statut invalide. Valeurs acceptées : " + Arrays.toString(StatutIncident.values()));
+        }
         
         IncidentResponseDTO updatedIncident = incidentService.updateIncidentStatus(id, status);
         return ResponseEntity.ok(updatedIncident);
