@@ -103,7 +103,26 @@ public class IncidentMapper {
         // Sauvegarder le fichier
         Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         
-        // Retourner le chemin relatif ou l'URL
-        return "/" + UPLOAD_DIR + fileName;
+        // Retourner le chemin relatif pour l'endpoint /api/v1/uploads/...
+        // UPLOAD_DIR est généralement /tmp/uploads/incidents/ ou uploads/incidents/
+        // On extrait la partie après "uploads/" pour construire le chemin relatif
+        String normalizedDir = UPLOAD_DIR.replaceAll("\\\\", "/");
+        String relativePath;
+        
+        // Si le chemin contient "uploads/", extraire la partie après
+        int uploadsIndex = normalizedDir.indexOf("uploads/");
+        if (uploadsIndex >= 0) {
+            String afterUploads = normalizedDir.substring(uploadsIndex + "uploads/".length());
+            // Nettoyer les slashes en début/fin
+            afterUploads = afterUploads.replaceAll("^/+|/+$", "");
+            relativePath = afterUploads.isEmpty() ? fileName : afterUploads + "/" + fileName;
+        } else {
+            // Si pas de "uploads/", utiliser le dernier segment du chemin
+            Path dirPath = Paths.get(normalizedDir);
+            String lastSegment = dirPath.getFileName() != null ? dirPath.getFileName().toString() : "";
+            relativePath = lastSegment.isEmpty() ? fileName : lastSegment + "/" + fileName;
+        }
+        
+        return relativePath;
     }
 }
