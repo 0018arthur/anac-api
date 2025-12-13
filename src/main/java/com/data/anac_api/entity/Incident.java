@@ -40,7 +40,9 @@ public class Incident extends Auditable implements Serializable {
     private TypeIncident typeIncident;
 
     @Enumerated(EnumType.STRING)
-    private StatutIncident statut;
+    @Column(nullable = false)
+    @Builder.Default
+    private StatutIncident statut = StatutIncident.EN_ATTENTE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

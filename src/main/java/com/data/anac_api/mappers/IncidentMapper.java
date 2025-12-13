@@ -5,6 +5,7 @@ import com.data.anac_api.dto.request.IncidentRequestDTO;
 import com.data.anac_api.dto.response.IncidentResponseDTO;
 import com.data.anac_api.entity.Incident;
 import com.data.anac_api.entity.Utilisateur;
+import com.data.anac_api.enums.StatutIncident;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ public class IncidentMapper {
                 .titre(dto.getTitre())
                 .description(dto.getDescription())
                 .typeIncident(dto.getTypeIncident())
+                .statut(StatutIncident.EN_ATTENTE) // Statut par défaut : EN_ATTENTE
                 .localisation(dto.getLocalisation())
                 .latitude(dto.getLatitude())
                 .longitude(dto.getLongitude())
