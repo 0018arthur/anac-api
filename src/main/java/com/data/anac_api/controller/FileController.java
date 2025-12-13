@@ -61,34 +61,88 @@ public class FileController {
                 filePath = filePath.substring(1);
             }
             
-            log.debug("Chemin du fichier extrait: {}", filePath);
+            log.info("Chemin du fichier extrait depuis l'URL: {}", filePath);
             
             // Construire le chemin complet du fichier
-            // Gérer les anciens chemins qui pourraient être absolus (/tmp/uploads/incidents/file.jpg)
-            Path fileSystemPath;
-            if (filePath.startsWith("/") && !filePath.startsWith("/tmp")) {
-                // Chemin relatif normal : incidents/file.jpg
-                fileSystemPath = Paths.get(uploadDirectory).resolve(filePath).normalize();
-            } else if (filePath.startsWith("/tmp")) {
+            // Gérer plusieurs cas :
+            // 1. Chemin avec sous-dossier : incidents/file.jpg
+            // 2. Nom de fichier seul : file.jpg (chercher directement dans uploadDirectory)
+            // 3. Ancien format absolu : /tmp/uploads/incidents/file.jpg
+            
+            Path fileSystemPath = null;
+            File file = null;
+            
+            if (filePath.startsWith("/tmp")) {
                 // Ancien format avec chemin absolu : /tmp/uploads/incidents/file.jpg
-                // Extraire le nom du fichier depuis le chemin complet
                 String fileName = Paths.get(filePath).getFileName().toString();
-                // Chercher dans le répertoire upload
                 fileSystemPath = Paths.get(uploadDirectory).resolve(fileName).normalize();
-                log.debug("Ancien format détecté, extraction du nom de fichier: {}", fileName);
+                file = fileSystemPath.toFile();
+                log.info("Ancien format détecté, extraction du nom de fichier: {}, résolution: {}", fileName, fileSystemPath);
             } else {
-                // Chemin relatif simple
+                // Essayer plusieurs stratégies pour trouver le fichier
+                String fileName = Paths.get(filePath).getFileName().toString();
+                
+                // Stratégie 1: Essayer avec le chemin tel quel (pour incidents/file.jpg)
+                Path tryPath1 = Paths.get(uploadDirectory).resolve(filePath).normalize();
+                File tryFile1 = tryPath1.toFile();
+                if (tryFile1.exists() && tryFile1.isFile()) {
+                    fileSystemPath = tryPath1;
+                    file = tryFile1;
+                    log.info("Fichier trouvé avec chemin complet: {}", fileSystemPath);
+                } else {
+                    // Stratégie 2: Essayer avec juste le nom du fichier (cas où le fichier est directement dans uploadDirectory)
+                    Path tryPath2 = Paths.get(uploadDirectory).resolve(fileName).normalize();
+                    File tryFile2 = tryPath2.toFile();
+                    if (tryFile2.exists() && tryFile2.isFile()) {
+                        fileSystemPath = tryPath2;
+                        file = tryFile2;
+                        log.info("Fichier trouvé avec nom de fichier seul: {}", fileSystemPath);
+                    } else {
+                        // Stratégie 3: Si le chemin commence par "incidents/", essayer sans ce préfixe
+                        if (filePath.startsWith("incidents/")) {
+                            String pathWithoutIncidents = filePath.substring("incidents/".length());
+                            Path tryPath3 = Paths.get(uploadDirectory).resolve(pathWithoutIncidents).normalize();
+                            File tryFile3 = tryPath3.toFile();
+                            if (tryFile3.exists() && tryFile3.isFile()) {
+                                fileSystemPath = tryPath3;
+                                file = tryFile3;
+                                log.info("Fichier trouvé après suppression du préfixe incidents/: {}", fileSystemPath);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Si aucun fichier n'a été trouvé, préparer le message d'erreur
+            if (fileSystemPath == null) {
                 fileSystemPath = Paths.get(uploadDirectory).resolve(filePath).normalize();
             }
             
-            log.debug("Répertoire d'upload configuré: {}", uploadDirectory);
-            log.debug("Chemin système du fichier: {}", fileSystemPath);
+            log.info("Répertoire d'upload configuré: {}", uploadDirectory);
+            log.info("Chemin système du fichier final: {}", fileSystemPath);
             
-            File file = fileSystemPath.toFile();
+            // Vérifier que le répertoire existe
+            File uploadDir = Paths.get(uploadDirectory).toFile();
+            if (!uploadDir.exists() || !uploadDir.isDirectory()) {
+                log.error("Le répertoire d'upload n'existe pas ou n'est pas un répertoire: {}", uploadDirectory);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Répertoire d'upload non accessible : " + uploadDirectory);
+            }
+            
+            // Lister les fichiers dans le répertoire pour le débogage (seulement si fichier non trouvé)
+            if (file == null || !file.exists() || !file.isFile()) {
+                File[] filesInDir = uploadDir.listFiles();
+                if (filesInDir != null) {
+                    log.warn("Fichiers trouvés dans le répertoire upload ({} fichiers):", filesInDir.length);
+                    for (File f : filesInDir) {
+                        log.warn("  - {}", f.getName());
+                    }
+                }
+            }
 
             // Vérifier que le fichier existe et est dans le répertoire autorisé
-            if (!file.exists() || !file.isFile()) {
-                log.warn("Fichier non trouvé - Chemin demandé: {}, Chemin système: {}", filePath, fileSystemPath);
+            if (file == null || !file.exists() || !file.isFile()) {
+                log.error("Fichier non trouvé - Chemin demandé: {}, Chemin système: {}", filePath, fileSystemPath);
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
                     "Fichier non trouvé : " + filePath + " (cherché dans : " + fileSystemPath + ")");
             }
