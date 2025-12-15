@@ -25,6 +25,7 @@ public record IncidentResponseDTO(
         LocalDateTime resolvedAt,
         PrioriteIncident priorite,
         String analyseIA,
+        String modifyBy,
 
         // Informations sur le déclarant
         Long declareParId,

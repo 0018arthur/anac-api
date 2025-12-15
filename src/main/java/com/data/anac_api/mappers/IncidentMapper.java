@@ -56,7 +56,8 @@ public class IncidentMapper {
                 .photoUrl(incident.getPhotoUrl())
                 .createdAt(incident.getCreatedAt())
                 .updatedAt(incident.getModifyAt())
-                .resolvedAt(incident.getResolvedAt());
+                .resolvedAt(incident.getResolvedAt())
+                .modifyBy(incident.getModifyBy());
 
         if (incident.getDeclarePar() != null) {
             builder
