@@ -106,7 +106,10 @@ public class IncidentMapper {
         Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         
         // Retourner le chemin relatif pour l'endpoint /api/v1/uploads/...
-        // UPLOAD_DIR est généralement /tmp/uploads/incidents/ ou uploads/incidents/
+        // UPLOAD_DIR peut être :
+        // - /data/uploads/incidents/ (volume persistant Railway)
+        // - /tmp/uploads/incidents/ (temporaire, non recommandé)
+        // - uploads/incidents/ (local)
         // On extrait la partie après "uploads/" pour construire le chemin relatif
         String normalizedDir = UPLOAD_DIR.replaceAll("\\\\", "/");
         String relativePath;
