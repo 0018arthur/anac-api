@@ -28,7 +28,7 @@ public class DataInitializer implements CommandLineRunner {
     private final UtilisateurRoleRepository utilisateurRoleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    private static final String ADMIN_EMAIL = "admin@anac.tg";
+    private static final String SUPER_ADMIN_EMAIL = "admin@anac.tg";
 
     @Override
     public void run(String... args) throws Exception {
@@ -45,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
                 initializeRoles();
                 
                 // 2. Créer l'utilisateur administrateur
-                initializeAdminUser();
+                initializeSuperAdminUser();
                 
                 log.info("✅ Initialisation des données terminée avec succès");
             } else {
@@ -62,14 +62,14 @@ public class DataInitializer implements CommandLineRunner {
      * @return true si l'admin n'existe pas encore, false sinon
      */
     private boolean isFirstInitialization() {
-        return utilisateurRepository.findByEmail(ADMIN_EMAIL).isEmpty();
+        return utilisateurRepository.findByEmail(SUPER_ADMIN_EMAIL).isEmpty();
     }
 
     /**
      * Initialise les rôles par défaut
      */
     private void initializeRoles() {
-        String[] roleNames = {"ADMIN", "USER", "OWNER"};
+        String[] roleNames = {"SUPER_ADMIN", "ADMIN", "USER", "OWNER"};
         
         for (String roleName : roleNames) {
             if (roleRepository.findByNom(roleName).isEmpty()) {
@@ -88,31 +88,31 @@ public class DataInitializer implements CommandLineRunner {
     /**
      * Initialise l'utilisateur administrateur par défaut UNE SEULE FOIS
      */
-    private void initializeAdminUser() {
+    private void initializeSuperAdminUser() {
         // Créer l'utilisateur administrateur
-        Utilisateur admin = Utilisateur.builder()
+        Utilisateur superAdmin = Utilisateur.builder()
                 .nom("Admin")
                 .prenoms("ANAC")
-                .email(ADMIN_EMAIL)
+                .email(SUPER_ADMIN_EMAIL)
                 .password(passwordEncoder.encode("Admin123!"))
                 .trackingId(UUID.randomUUID())
                 .enabled(true)
                 .build();
 
-        admin = utilisateurRepository.save(admin);
-        log.info("✓ Utilisateur administrateur créé: {} ({})", admin.getNom(), admin.getEmail());
+        superAdmin = utilisateurRepository.save(superAdmin);
+        log.info("✓ Utilisateur administrateur créé: {} ({})", superAdmin.getNom(), superAdmin.getEmail());
 
         // Assigner le rôle ADMIN
-        Role adminRole = roleRepository.findByNom("ADMIN")
-                .orElseThrow(() -> new RuntimeException("Le rôle ADMIN n'a pas pu être trouvé"));
+        Role adminRole = roleRepository.findByNom("SUPER_ADMIN")
+                .orElseThrow(() -> new RuntimeException("Le rôle SUPER_ADMIN n'a pas pu être trouvé"));
 
         UtilisateurRole utilisateurRole = UtilisateurRole.builder()
-                .utilisateur(admin)
+                .utilisateur(superAdmin)
                 .role(adminRole)
                 .trackingId(UUID.randomUUID())
                 .build();
 
         utilisateurRoleRepository.save(utilisateurRole);
-        log.info("✓ Rôle ADMIN assigné à l'utilisateur: {}", ADMIN_EMAIL);
+        log.info("✓ Rôle SUPER_ADMIN assigné à l'utilisateur: {}", SUPER_ADMIN_EMAIL);
     }
 }
